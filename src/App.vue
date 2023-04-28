@@ -1,7 +1,5 @@
 <script setup>
 import { ref, computed } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
-import TheWelcome from "./components/TheWelcome.vue";
 
 const MATRIX_SIZE = 4;
 const MATRIX_INDEX_FIRST = 0;
@@ -28,64 +26,59 @@ const emptyCellList = computed(() => {
       }
     });
   });
-  console.log(list);
   return list;
 });
-
-// const matrixStatus = computed(() => {
-//   let temp = [];
-//   for (let y = 0; y < MATRIX_SIZE; y++) {
-//     temp[y] = [];
-//     for (let x = 0; x < MATRIX_SIZE; x++) {
-//       temp[y][x] = null;
-//     }
-//   }
-// });
 
 const moveTo = (current_y, current_x, direction) => {
   const instance = matrix.value[current_y][current_x];
   if (!instance) {
-    return;
+    return false;
   }
   let next_y = null;
   let next_x = null;
   switch (direction) {
     case DERECTION_TO_TOP:
       if (current_y === MATRIX_INDEX_FIRST) {
-        return;
+        return false;
       }
       next_y = current_y - 1;
       next_x = current_x;
       break;
     case DERECTION_TO_BUTTOM:
       if (current_y === MATRIX_INDEX_LAST) {
-        return;
+        return false;
       }
       next_y = current_y + 1;
       next_x = current_x;
       break;
     case DERECTION_TO_LEFT:
       if (current_x === MATRIX_INDEX_FIRST) {
-        return;
+        return false;
       }
       next_y = current_y;
       next_x = current_x - 1;
       break;
     case DERECTION_TO_RIGHT:
       if (current_x === MATRIX_INDEX_LAST) {
-        return;
+        return false;
       }
       next_y = current_y;
       next_x = current_x + 1;
       break;
     default:
-      return;
+      return false;
   }
   if (!matrix.value[next_y][next_x]) {
     matrix.value[next_y][next_x] = instance;
     matrix.value[current_y][current_x] = null;
     moveTo(next_y, next_x, direction);
+    return true;
+  } else if (matrix.value[next_y][next_x].num == instance.num) {
+    matrix.value[next_y][next_x].num += instance.num;
+    matrix.value[current_y][current_x] = null;
+    return true;
   }
+  return false;
 };
 
 const randomAppear = () => {
@@ -104,13 +97,14 @@ const randomAppear = () => {
 };
 
 const derectionAction = (direction) => {
+  let move_success = false;
   switch (direction) {
     case DERECTION_TO_TOP:
       for (let x = 0; x < MATRIX_SIZE; x++) {
         //必ず上から走査
         for (let y = 0; y < MATRIX_SIZE; y++) {
           if (!!matrix.value[y][x]) {
-            moveTo(y, x, direction);
+            move_success = moveTo(y, x, direction) || move_success;
           }
         }
       }
@@ -121,7 +115,7 @@ const derectionAction = (direction) => {
         for (let y = 0; y < MATRIX_SIZE; y++) {
           const reverse_y = MATRIX_INDEX_LAST - y;
           if (!!matrix.value[reverse_y][x]) {
-            moveTo(reverse_y, x, direction);
+            move_success = moveTo(reverse_y, x, direction) || move_success;
           }
         }
       }
@@ -131,7 +125,7 @@ const derectionAction = (direction) => {
         for (let x = 0; x < MATRIX_SIZE; x++) {
           //必ず左から走査
           if (!!matrix.value[y][x]) {
-            moveTo(y, x, direction);
+            move_success = moveTo(y, x, direction) || move_success;
           }
         }
       }
@@ -142,7 +136,7 @@ const derectionAction = (direction) => {
           //必ず右から走査
           const reverse_x = MATRIX_INDEX_LAST - x;
           if (!!matrix.value[y][reverse_x]) {
-            moveTo(y, reverse_x, direction);
+            move_success = moveTo(y, reverse_x, direction) || move_success;
           }
         }
       }
@@ -151,8 +145,14 @@ const derectionAction = (direction) => {
       console.log("知らない入力だ…");
   }
 
-  const result = randomAppear();
-  if (!result) {
+  if (!move_success) {
+    //一つでも動かせるものがなかった場合
+    alert("その方向へは動かせません");
+    return;
+  }
+
+  const appear_success = randomAppear();
+  if (!appear_success) {
     alert("これ以上生成できませんでした。");
   }
 };
@@ -176,17 +176,6 @@ const keyAction = (e) => {
  * created
  *
  **/
-// const initMatrix = (() => {
-//   let temp = [];
-//   for (let i = 0; i < MATRIX_SIZE; i++) {
-//     temp[i] = [];
-//     for (let j = 0; j < MATRIX_SIZE; j++) {
-//       temp[i][j] = null;
-//     }
-//   }
-
-//   matrix.value = temp;
-// })();
 
 randomAppear();
 
@@ -200,7 +189,7 @@ window.addEventListener("keydown", keyAction);
 
   <main>
     <div v-for="row in matrix" :key="row">
-      <span v-for="item in row" :key="item">{{ item?.num ?? "□" }}</span>
+      <span v-for="item in row" :key="item">{{ item?.num ?? "□" }},</span>
     </div>
   </main>
 </template>
