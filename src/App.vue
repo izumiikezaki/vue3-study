@@ -19,6 +19,19 @@ const matrix = ref([
   [null, null, null, null],
 ]);
 
+const emptyCellList = computed(() => {
+  let list = [];
+  matrix.value.forEach((raw, y) => {
+    raw.forEach((item, x) => {
+      if (!item) {
+        list.push({ x: x, y: y });
+      }
+    });
+  });
+  console.log(list);
+  return list;
+});
+
 // const matrixStatus = computed(() => {
 //   let temp = [];
 //   for (let y = 0; y < MATRIX_SIZE; y++) {
@@ -59,7 +72,6 @@ const moveTo = (current_y, current_x, direction) => {
       next_x = current_x - 1;
       break;
     case DERECTION_TO_RIGHT:
-      console.log("koko");
       if (current_x === MATRIX_INDEX_LAST) {
         return;
       }
@@ -76,14 +88,22 @@ const moveTo = (current_y, current_x, direction) => {
   }
 };
 
-const appearNum = (x, y, num) => {
+const randomAppear = () => {
+  const list = emptyCellList.value;
+  if (list.length == 0) {
+    return false;
+  }
+  const random = Math.floor(Math.random() * list.length);
+  const cell = list[random];
+
   const instance = {
-    num: num,
+    num: 2,
   };
-  matrix.value[y][x] = instance;
+  matrix.value[cell.y][cell.x] = instance;
+  return true;
 };
 
-const inputDerection = (direction) => {
+const derectionAction = (direction) => {
   switch (direction) {
     case DERECTION_TO_TOP:
       for (let x = 0; x < MATRIX_SIZE; x++) {
@@ -100,9 +120,7 @@ const inputDerection = (direction) => {
         //必ず下から走査
         for (let y = 0; y < MATRIX_SIZE; y++) {
           const reverse_y = MATRIX_INDEX_LAST - y;
-          console.log(reverse_y);
           if (!!matrix.value[reverse_y][x]) {
-            console.log(matrix.value[reverse_y][x]);
             moveTo(reverse_y, x, direction);
           }
         }
@@ -132,18 +150,22 @@ const inputDerection = (direction) => {
     default:
       console.log("知らない入力だ…");
   }
-  // console.log(matrix.value);
+
+  const result = randomAppear();
+  if (!result) {
+    alert("これ以上生成できませんでした。");
+  }
 };
 
 const keyAction = (e) => {
   if (e.keyCode == 38) {
-    inputDerection(DERECTION_TO_TOP);
+    derectionAction(DERECTION_TO_TOP);
   } else if (e.keyCode == 40) {
-    inputDerection(DERECTION_TO_BUTTOM);
+    derectionAction(DERECTION_TO_BUTTOM);
   } else if (e.keyCode == 37) {
-    inputDerection(DERECTION_TO_LEFT);
+    derectionAction(DERECTION_TO_LEFT);
   } else if (e.keyCode == 39) {
-    inputDerection(DERECTION_TO_RIGHT);
+    derectionAction(DERECTION_TO_RIGHT);
   }
   //キーコードの表示
   console.log(e.keyCode);
@@ -166,12 +188,7 @@ const keyAction = (e) => {
 //   matrix.value = temp;
 // })();
 
-const randomAppear = (() => {
-  const x = Math.floor(Math.random() * MATRIX_SIZE);
-  const y = Math.floor(Math.random() * MATRIX_SIZE);
-
-  appearNum(x, y, 2);
-})();
+randomAppear();
 
 window.addEventListener("keydown", keyAction);
 </script>
