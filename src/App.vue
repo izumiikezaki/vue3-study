@@ -184,7 +184,14 @@ window.addEventListener("keydown", keyAction);
 
 <template>
   <header>
-    <h1>2048ゲーム</h1>
+    <h1>
+      2048ゲーム<a
+        href="https://github.com/izumiikezaki/vue3-study"
+        target="_blank"
+      >
+        <i class="fa-brands fa-github-alt" />
+      </a>
+    </h1>
   </header>
 
   <main>
