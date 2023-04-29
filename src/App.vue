@@ -149,7 +149,7 @@ const derectionAction = (direction) => {
 
   if (!move_success) {
     //一つでも動かせるものがなかった場合
-    alert("その方向へは動かせません");
+    console.warn("その方向へは動かせません");
     return;
   }
 
