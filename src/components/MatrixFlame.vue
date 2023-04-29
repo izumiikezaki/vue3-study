@@ -10,10 +10,10 @@ const cellList = computed(() => {
   let list = [];
 
   props.matrixState.forEach((arr, y) => {
-    arr.forEach((item, x) => {
-      if (item) {
+    arr.forEach((num, x) => {
+      if (num) {
         list.push({
-          num: item.num,
+          num: num,
           yPercent: (y / 4) * 100,
           xPercent: (x / 4) * 100,
         });

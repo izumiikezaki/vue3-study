@@ -32,8 +32,8 @@ const emptyCellList = computed(() => {
 });
 
 const moveTo = (current_y, current_x, direction) => {
-  const instance = matrix.value[current_y][current_x];
-  if (!instance) {
+  const num = matrix.value[current_y][current_x];
+  if (!num) {
     return false;
   }
   let next_y = null;
@@ -71,12 +71,12 @@ const moveTo = (current_y, current_x, direction) => {
       return false;
   }
   if (!matrix.value[next_y][next_x]) {
-    matrix.value[next_y][next_x] = instance;
+    matrix.value[next_y][next_x] = num;
     matrix.value[current_y][current_x] = null;
     moveTo(next_y, next_x, direction);
     return true;
-  } else if (matrix.value[next_y][next_x].num == instance.num) {
-    matrix.value[next_y][next_x].num += instance.num;
+  } else if (matrix.value[next_y][next_x] == num) {
+    matrix.value[next_y][next_x] += num;
     matrix.value[current_y][current_x] = null;
     return true;
   }
@@ -91,10 +91,8 @@ const randomAppear = () => {
   const random = Math.floor(Math.random() * list.length);
   const cell = list[random];
 
-  const instance = {
-    num: 2,
-  };
-  matrix.value[cell.y][cell.x] = instance;
+  const num = 2;
+  matrix.value[cell.y][cell.x] = num;
   return true;
 };
 
@@ -202,11 +200,11 @@ window.addEventListener("keydown", keyAction);
         <matrix-flame :matrix-state="matrix" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
-          <!-- <div v-for="row in matrix" :key="row" class="w-full">
-            <span v-for="item in row" :key="item" class="w-1/4"
-              >{{ item?.num ?? "□" }},</span
+          <div v-for="row in matrix" :key="row" class="w-full">
+            <span v-for="(num, x) in row" :key="x" class="w-1/4"
+              >{{ num ?? "□" }},</span
             >
-          </div> -->
+          </div>
         </div>
       </div>
       <div class="w-full p-6 md:w-1/2"></div>
