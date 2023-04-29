@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
+import MatrixCell from "./components/MatrixCell.vue";
+import MatrixFlame from "./components/MatrixFlame.vue";
 
 const MATRIX_SIZE = 4;
 const MATRIX_INDEX_FIRST = 0;
@@ -195,8 +197,19 @@ window.addEventListener("keydown", keyAction);
   </header>
 
   <main>
-    <div v-for="row in matrix" :key="row">
-      <span v-for="item in row" :key="item">{{ item?.num ?? "□" }},</span>
+    <div class="container flex flex-wrap mx-auto mb-8">
+      <div class="w-full p-6 md:w-1/2">
+        <matrix-flame :matrix-state="matrix" />
+        <div class="w-full p-2">
+          <!-- デバッグ用 -->
+          <!-- <div v-for="row in matrix" :key="row" class="w-full">
+            <span v-for="item in row" :key="item" class="w-1/4"
+              >{{ item?.num ?? "□" }},</span
+            >
+          </div> -->
+        </div>
+      </div>
+      <div class="w-full p-6 md:w-1/2"></div>
     </div>
   </main>
 </template>
