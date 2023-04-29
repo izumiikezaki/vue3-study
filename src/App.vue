@@ -31,6 +31,15 @@ const emptyCellList = computed(() => {
   return list;
 });
 
+const outOfMatrix = (y, x) => {
+  return (
+    y < MATRIX_INDEX_FIRST ||
+    y > MATRIX_INDEX_LAST ||
+    x < MATRIX_INDEX_FIRST ||
+    x > MATRIX_INDEX_LAST
+  );
+};
+
 const moveTo = (current_y, current_x, direction) => {
   const num = matrix.value[current_y][current_x];
   if (!num) {
@@ -40,36 +49,29 @@ const moveTo = (current_y, current_x, direction) => {
   let next_x = null;
   switch (direction) {
     case DERECTION_TO_TOP:
-      if (current_y === MATRIX_INDEX_FIRST) {
-        return false;
-      }
       next_y = current_y - 1;
       next_x = current_x;
       break;
     case DERECTION_TO_BUTTOM:
-      if (current_y === MATRIX_INDEX_LAST) {
-        return false;
-      }
       next_y = current_y + 1;
       next_x = current_x;
       break;
     case DERECTION_TO_LEFT:
-      if (current_x === MATRIX_INDEX_FIRST) {
-        return false;
-      }
       next_y = current_y;
       next_x = current_x - 1;
       break;
     case DERECTION_TO_RIGHT:
-      if (current_x === MATRIX_INDEX_LAST) {
-        return false;
-      }
       next_y = current_y;
       next_x = current_x + 1;
       break;
     default:
       return false;
   }
+
+  if (outOfMatrix(next_y, next_x)) {
+    return false;
+  }
+
   if (!matrix.value[next_y][next_x]) {
     matrix.value[next_y][next_x] = num;
     matrix.value[current_y][current_x] = null;
