@@ -14,6 +14,12 @@ const DERECTION_TO_RIGHT = 6;
 
 const cellList = ref([]);
 
+const cellListWithoutMerged = computed(() => {
+  return cellList.value.filter((cell) => {
+    return !cell.merged;
+  });
+});
+
 const matrix = computed(() => {
   const list = [
     [null, null, null, null],
@@ -22,10 +28,8 @@ const matrix = computed(() => {
     [null, null, null, null],
   ];
 
-  cellList.value.forEach((cell) => {
-    if (!cell.merged) {
-      list[cell.y][cell.x] = cell.num;
-    }
+  cellListWithoutMerged.value.forEach((cell) => {
+    list[cell.y][cell.x] = cell.num;
   });
 
   return list;
@@ -50,17 +54,15 @@ const emptyPositionList = computed(() => {
   return list;
 });
 
-//セルを探すmergedは含めない
+//セルを探す(mergedは含めない)
 const findCell = (y, x) => {
-  return cellList.value.find(
-    (cell) => cell.x === x && cell.y === y && cell.merged === false
+  return cellListWithoutMerged.value.find(
+    (cell) => cell.x === x && cell.y === y
   );
 };
 
 const deleteMergedCells = () => {
-  cellList.value = cellList.value.filter((cell) => {
-    return !cell.merged;
-  });
+  cellList.value = cellListWithoutMerged.value.concat();
 };
 
 const outOfMatrix = (y, x) => {
@@ -73,8 +75,9 @@ const outOfMatrix = (y, x) => {
 };
 
 const checkGameClear = () => {
-  return !!cellList.value.find((cell) => cell.num === 2048);
+  return !!cellList.value.find((cell) => cell.num >= 2048);
 };
+
 const checkGameFaild = () => {
   if (emptyPositionList.value.length > 0) {
     return false;
@@ -94,8 +97,7 @@ const checkGameFaild = () => {
       }
     }
   }
-  console.log(emptyPositionList.value.length);
-  console.log(matrix.value);
+
   return true;
 };
 
@@ -176,7 +178,7 @@ const randomAppear = () => {
 
 const derectionAction = (direction) => {
   deleteMergedCells();
-  let move_success = false;
+
   const clClone = cellList.value.concat();
   switch (direction) {
     case DERECTION_TO_TOP:
@@ -207,6 +209,7 @@ const derectionAction = (direction) => {
       console.log("知らない入力だ…");
   }
 
+  let move_success = false;
   clClone.forEach((cell) => {
     if (!cell.merged) {
       move_success = moveTo(cell.y, cell.x, direction) || move_success;
@@ -238,7 +241,7 @@ const keyAction = (e) => {
     derectionAction(DERECTION_TO_RIGHT);
   }
   //キーコードの表示
-  console.log(e.keyCode);
+  // console.log(e.keyCode);
 };
 
 /**
