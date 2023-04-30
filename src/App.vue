@@ -188,15 +188,15 @@ const derectionAction = (direction) => {
     }
   });
 
+  const appear_success = randomAppear();
+  if (!appear_success) {
+    alert("これ以上生成できませんでした。");
+  }
+
   if (!move_success) {
     //一つでも動かせるものがなかった場合
     console.warn("その方向へは動かせません");
     return;
-  }
-
-  const appear_success = randomAppear();
-  if (!appear_success) {
-    alert("これ以上生成できませんでした。");
   }
 };
 
