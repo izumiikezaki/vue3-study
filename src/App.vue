@@ -72,6 +72,34 @@ const outOfMatrix = (y, x) => {
   );
 };
 
+const checkGameClear = () => {
+  return !!cellList.value.find((cell) => cell.num === 2048);
+};
+const checkGameFaild = () => {
+  if (emptyPositionList.value.length > 0) {
+    return false;
+  }
+
+  let movable = false;
+  for (let y = 0; y < MATRIX_INDEX_LAST; y++) {
+    for (let x = 0; x < MATRIX_INDEX_LAST - 1; x++) {
+      if (matrix.value[y][x] == matrix.value[y][x + 1]) {
+        movable = true;
+      }
+    }
+  }
+  for (let y = 0; y < MATRIX_INDEX_LAST - 1; y++) {
+    for (let x = 0; x < MATRIX_INDEX_LAST; x++) {
+      if (matrix.value[y][x] == matrix.value[y + 1][x]) {
+        movable = true;
+      }
+    }
+  }
+  console.log(movable);
+
+  return !movable;
+};
+
 const moveTo = (current_y, current_x, direction) => {
   const cell = findCell(current_y, current_x);
   if (!cell) {
@@ -186,13 +214,6 @@ const derectionAction = (direction) => {
     }
   });
 
-  const appearCapacity = emptyPositionList.value.length;
-
-  // if (!move_success && appearCapacity === 0) {
-  //   alert("これ以上何もできません。詰みです。");
-  //   return;
-  // }
-
   if (!move_success) {
     console.warn("その方向へは動かせません");
     return;
@@ -200,9 +221,10 @@ const derectionAction = (direction) => {
 
   randomAppear();
 
-  const cell2048 = cellList.value.find((cell) => cell.num === 2048);
-  if (cell2048) {
+  if (checkGameClear()) {
     alert("おめでとうございます。クリアです。");
+  } else if (checkGameFaild()) {
+    alert("これ以上できません。詰みです");
   }
 };
 
