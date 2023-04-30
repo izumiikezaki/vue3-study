@@ -75,7 +75,7 @@ const outOfMatrix = (y, x) => {
 const moveTo = (current_y, current_x, direction) => {
   const cell = findCell(current_y, current_x);
   if (!cell) {
-    return { move: 0, is_merged: false };
+    return false;
   }
   let next_y = null;
   let next_x = null;
@@ -97,20 +97,19 @@ const moveTo = (current_y, current_x, direction) => {
       next_x = current_x + 1;
       break;
     default:
-      return { move: 0, is_merged: false };
+      return false;
   }
 
   if (outOfMatrix(next_y, next_x)) {
-    return { move: 0, is_merged: false };
+    return false;
   }
 
   const next_cell = findCell(next_y, next_x);
   if (!next_cell) {
     cell.y = next_y;
     cell.x = next_x;
-    const result = moveTo(next_y, next_x, direction);
-    result.move += 1;
-    return result;
+    moveTo(next_y, next_x, direction);
+    return true;
   } else if (next_cell.num === cell.num) {
     next_cell.merged = true;
     cell.y = next_y;
@@ -125,15 +124,15 @@ const moveTo = (current_y, current_x, direction) => {
       created_by_merge: true,
     });
 
-    return { move: 1, is_merged: true };
+    return true;
   }
-  return { move: 0, is_merged: false };
+  return false;
 };
 
 const randomAppear = () => {
   const positionList = emptyPositionList.value;
   if (positionList.length == 0) {
-    return false;
+    return;
   }
   const random = Math.floor(Math.random() * positionList.length);
   const position = positionList[random];
@@ -145,7 +144,7 @@ const randomAppear = () => {
     merged: false,
     created_by_merge: false,
   });
-  return true;
+  return;
 };
 
 const derectionAction = (direction) => {
@@ -183,20 +182,27 @@ const derectionAction = (direction) => {
 
   clClone.forEach((cell) => {
     if (!cell.merged) {
-      const result = moveTo(cell.y, cell.x, direction) || move_success;
-      move_success = result.move > 0 || move_success;
+      move_success = moveTo(cell.y, cell.x, direction) || move_success;
     }
   });
 
-  const appear_success = randomAppear();
-  if (!appear_success) {
-    alert("これ以上生成できませんでした。");
-  }
+  const appearCapacity = emptyPositionList.value.length;
+
+  // if (!move_success && appearCapacity === 0) {
+  //   alert("これ以上何もできません。詰みです。");
+  //   return;
+  // }
 
   if (!move_success) {
-    //一つでも動かせるものがなかった場合
     console.warn("その方向へは動かせません");
     return;
+  }
+
+  randomAppear();
+
+  const cell2048 = cellList.value.find((cell) => cell.num === 2048);
+  if (cell2048) {
+    alert("おめでとうございます。クリアです。");
   }
 };
 
