@@ -47,12 +47,20 @@ const styleForPosition = computed(() => {
     left: `${(props.cell.x / 4) * 100}%`,
   };
 });
+
+const classOfAnimation = computed(() => {
+  if (props.cell.created_by_marge) {
+    return ["move-animation", "merge-animation"];
+  }
+  return ["move-animation", "appear-animation"];
+});
 </script>
 
 <template>
   <div
-    class="absolute aspect-square w-1/4 p-1 cell-animation"
+    class="absolute aspect-square w-1/4 p-1"
     :style="styleForPosition"
+    :class="classOfAnimation"
   >
     <div
       class="w-full rounded aspect-square grid place-items-center"
@@ -66,7 +74,30 @@ const styleForPosition = computed(() => {
 </template>
 
 <style scoped>
-.cell-animation {
+.move-animation {
   transition: all 0.3s ease;
+}
+
+.appear-animation {
+  animation: appear 0.5s ease;
+}
+
+.merge-animation {
+  animation: merge 0.5s ease 0.1s;
+}
+
+@keyframes appear {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes merge {
+  50% {
+    transform: scale(1.2);
+  }
 }
 </style>

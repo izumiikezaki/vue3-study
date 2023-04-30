@@ -58,7 +58,7 @@ const findCell = (y, x) => {
 };
 
 const deleteMergedCells = () => {
-  return cellList.value.filter((cell) => {
+  cellList.value = cellList.value.filter((cell) => {
     return !cell.merged;
   });
 };
@@ -122,6 +122,7 @@ const moveTo = (current_y, current_x, direction) => {
       x: next_x,
       num: cell.num + next_cell.num,
       merged: false,
+      created_by_merge: true,
     });
 
     return { move: 1, is_merged: true };
@@ -142,11 +143,13 @@ const randomAppear = () => {
     x: position.x,
     num: 2,
     merged: false,
+    created_by_merge: false,
   });
   return true;
 };
 
 const derectionAction = (direction) => {
+  deleteMergedCells();
   let move_success = false;
   const clClone = cellList.value.concat();
   switch (direction) {
