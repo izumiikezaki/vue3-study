@@ -43,7 +43,7 @@ const outOfMatrix = (y, x) => {
 const moveTo = (current_y, current_x, direction) => {
   const num = matrix.value[current_y][current_x];
   if (!num) {
-    return false;
+    return { move: 0, is_merged: false };
   }
   let next_y = null;
   let next_x = null;
@@ -65,24 +65,26 @@ const moveTo = (current_y, current_x, direction) => {
       next_x = current_x + 1;
       break;
     default:
-      return false;
+      return { move: 0, is_merged: false };
   }
 
   if (outOfMatrix(next_y, next_x)) {
-    return false;
+    return { move: 0, is_merged: false };
   }
 
   if (!matrix.value[next_y][next_x]) {
     matrix.value[next_y][next_x] = num;
     matrix.value[current_y][current_x] = null;
-    moveTo(next_y, next_x, direction);
-    return true;
+    const result = moveTo(next_y, next_x, direction);
+    result.move += 1;
+    return result;
   } else if (matrix.value[next_y][next_x] == num) {
     matrix.value[next_y][next_x] += num;
     matrix.value[current_y][current_x] = null;
-    return true;
+
+    return { move: 1, is_merged: true };
   }
-  return false;
+  return { move: 0, is_merged: false };
 };
 
 const randomAppear = () => {
@@ -106,7 +108,8 @@ const derectionAction = (direction) => {
         //必ず上から走査
         for (let y = 0; y < MATRIX_SIZE; y++) {
           if (!!matrix.value[y][x]) {
-            move_success = moveTo(y, x, direction) || move_success;
+            const result = moveTo(y, x, direction) || move_success;
+            move_success = result.move > 0 || move_success;
           }
         }
       }
@@ -117,7 +120,8 @@ const derectionAction = (direction) => {
         for (let y = 0; y < MATRIX_SIZE; y++) {
           const reverse_y = MATRIX_INDEX_LAST - y;
           if (!!matrix.value[reverse_y][x]) {
-            move_success = moveTo(reverse_y, x, direction) || move_success;
+            const result = moveTo(y, x, direction) || move_success;
+            move_success = result.move > 0 || move_success;
           }
         }
       }
@@ -127,7 +131,8 @@ const derectionAction = (direction) => {
         for (let x = 0; x < MATRIX_SIZE; x++) {
           //必ず左から走査
           if (!!matrix.value[y][x]) {
-            move_success = moveTo(y, x, direction) || move_success;
+            const result = moveTo(y, x, direction) || move_success;
+            move_success = result.move > 0 || move_success;
           }
         }
       }
@@ -138,7 +143,8 @@ const derectionAction = (direction) => {
           //必ず右から走査
           const reverse_x = MATRIX_INDEX_LAST - x;
           if (!!matrix.value[y][reverse_x]) {
-            move_success = moveTo(y, reverse_x, direction) || move_success;
+            const result = moveTo(y, x, direction) || move_success;
+            move_success = result.move > 0 || move_success;
           }
         }
       }
