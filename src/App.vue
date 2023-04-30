@@ -37,13 +37,6 @@ const matrix = computed(() => {
 
 const emptyPositionList = computed(() => {
   let list = [];
-  // for (let x = 0; x < MATRIX_SIZE; x++) {
-  //   for (let y = 0; y < MATRIX_SIZE; y++) {
-  //     if (!!findCell(y, x)) {
-  //       list.push({ x: x, y: y });
-  //     }
-  //   }
-  // }
   matrix.value.forEach((raw, y) => {
     raw.forEach((item, x) => {
       if (!item) {
