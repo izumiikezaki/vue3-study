@@ -2,13 +2,11 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  num: Number,
-  xPercent: Number,
-  yPercent: Number,
+  cell: Object,
 });
 
 const colorClass = computed(() => {
-  switch (props.num) {
+  switch (props.cell.num) {
     case 2:
       return "bg-slate-50";
     case 4:
@@ -37,7 +35,7 @@ const colorClass = computed(() => {
 });
 
 const textColorClass = computed(() => {
-  if (props.num > 8) {
+  if (props.cell.num > 8) {
     return "text-slate-100";
   }
   return "text-slate-900";
@@ -45,21 +43,30 @@ const textColorClass = computed(() => {
 
 const styleForPosition = computed(() => {
   return {
-    top: props.yPercent + "%",
-    left: props.xPercent + "%",
+    top: `${(props.cell.y / 4) * 100}%`,
+    left: `${(props.cell.x / 4) * 100}%`,
   };
 });
 </script>
 
 <template>
-  <div class="absolute aspect-square w-1/4 p-1" :style="styleForPosition">
+  <div
+    class="absolute aspect-square w-1/4 p-1 cell-animation"
+    :style="styleForPosition"
+  >
     <div
       class="w-full rounded aspect-square grid place-items-center"
       :class="colorClass"
     >
       <span :class="textColorClass">
-        {{ num }}
+        {{ cell.num }}
       </span>
     </div>
   </div>
 </template>
+
+<style scoped>
+.cell-animation {
+  transition: all 0.3s ease;
+}
+</style>

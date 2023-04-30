@@ -237,7 +237,7 @@ window.addEventListener("keydown", keyAction);
   <main>
     <div class="container flex flex-wrap mx-auto mb-8">
       <div class="w-full p-6 md:w-1/2">
-        <matrix-flame :matrix-state="matrix" />
+        <matrix-flame :cell-list="cellList" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
           <div v-for="row in matrix" :key="row" class="w-full">
