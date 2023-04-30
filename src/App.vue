@@ -80,24 +80,23 @@ const checkGameFaild = () => {
     return false;
   }
 
-  let movable = false;
-  for (let y = 0; y < MATRIX_INDEX_LAST; y++) {
-    for (let x = 0; x < MATRIX_INDEX_LAST - 1; x++) {
+  for (let y = 0; y < MATRIX_SIZE; y++) {
+    for (let x = 0; x < MATRIX_SIZE - 1; x++) {
       if (matrix.value[y][x] == matrix.value[y][x + 1]) {
-        movable = true;
+        return false;
       }
     }
   }
-  for (let y = 0; y < MATRIX_INDEX_LAST - 1; y++) {
-    for (let x = 0; x < MATRIX_INDEX_LAST; x++) {
+  for (let y = 0; y < MATRIX_SIZE - 1; y++) {
+    for (let x = 0; x < MATRIX_SIZE; x++) {
       if (matrix.value[y][x] == matrix.value[y + 1][x]) {
-        movable = true;
+        return false;
       }
     }
   }
-  console.log(movable);
-
-  return !movable;
+  console.log(emptyPositionList.value.length);
+  console.log(matrix.value);
+  return true;
 };
 
 const moveTo = (current_y, current_x, direction) => {
