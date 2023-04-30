@@ -12,15 +12,34 @@ const DERECTION_TO_BUTTOM = 2;
 const DERECTION_TO_LEFT = 4;
 const DERECTION_TO_RIGHT = 6;
 
-const matrix = ref([
-  [null, null, null, null],
-  [null, null, null, null],
-  [null, null, null, null],
-  [null, null, null, null],
-]);
+const cellList = ref([]);
 
-const emptyCellList = computed(() => {
+const matrix = computed(() => {
+  const list = [
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+  ];
+
+  cellList.value.forEach((cell) => {
+    if (!cell.merged) {
+      list[cell.y][cell.x] = cell.num;
+    }
+  });
+
+  return list;
+});
+
+const emptyPositionList = computed(() => {
   let list = [];
+  // for (let x = 0; x < MATRIX_SIZE; x++) {
+  //   for (let y = 0; y < MATRIX_SIZE; y++) {
+  //     if (!!findCell(y, x)) {
+  //       list.push({ x: x, y: y });
+  //     }
+  //   }
+  // }
   matrix.value.forEach((raw, y) => {
     raw.forEach((item, x) => {
       if (!item) {
@@ -31,131 +50,180 @@ const emptyCellList = computed(() => {
   return list;
 });
 
+//セルを探すmergedは含めない
+const findCell = (y, x) => {
+  return cellList.value.find(
+    (cell) => cell.x === x && cell.y === y && cell.merged === false
+  );
+};
+
+const deleteMergedCells = () => {
+  cellList.value = cellList.value.filter((cell) => {
+    return !cell.merged;
+  });
+};
+
+const outOfMatrix = (y, x) => {
+  return (
+    y < MATRIX_INDEX_FIRST ||
+    y > MATRIX_INDEX_LAST ||
+    x < MATRIX_INDEX_FIRST ||
+    x > MATRIX_INDEX_LAST
+  );
+};
+
+const checkGameClear = () => {
+  return !!cellList.value.find((cell) => cell.num === 2048);
+};
+const checkGameFaild = () => {
+  if (emptyPositionList.value.length > 0) {
+    return false;
+  }
+
+  for (let y = 0; y < MATRIX_SIZE; y++) {
+    for (let x = 0; x < MATRIX_SIZE - 1; x++) {
+      if (matrix.value[y][x] == matrix.value[y][x + 1]) {
+        return false;
+      }
+    }
+  }
+  for (let y = 0; y < MATRIX_SIZE - 1; y++) {
+    for (let x = 0; x < MATRIX_SIZE; x++) {
+      if (matrix.value[y][x] == matrix.value[y + 1][x]) {
+        return false;
+      }
+    }
+  }
+  console.log(emptyPositionList.value.length);
+  console.log(matrix.value);
+  return true;
+};
+
 const moveTo = (current_y, current_x, direction) => {
-  const instance = matrix.value[current_y][current_x];
-  if (!instance) {
+  const cell = findCell(current_y, current_x);
+  if (!cell) {
     return false;
   }
   let next_y = null;
   let next_x = null;
   switch (direction) {
     case DERECTION_TO_TOP:
-      if (current_y === MATRIX_INDEX_FIRST) {
-        return false;
-      }
       next_y = current_y - 1;
       next_x = current_x;
       break;
     case DERECTION_TO_BUTTOM:
-      if (current_y === MATRIX_INDEX_LAST) {
-        return false;
-      }
       next_y = current_y + 1;
       next_x = current_x;
       break;
     case DERECTION_TO_LEFT:
-      if (current_x === MATRIX_INDEX_FIRST) {
-        return false;
-      }
       next_y = current_y;
       next_x = current_x - 1;
       break;
     case DERECTION_TO_RIGHT:
-      if (current_x === MATRIX_INDEX_LAST) {
-        return false;
-      }
       next_y = current_y;
       next_x = current_x + 1;
       break;
     default:
       return false;
   }
-  if (!matrix.value[next_y][next_x]) {
-    matrix.value[next_y][next_x] = instance;
-    matrix.value[current_y][current_x] = null;
+
+  if (outOfMatrix(next_y, next_x)) {
+    return false;
+  }
+
+  const next_cell = findCell(next_y, next_x);
+  if (!next_cell) {
+    cell.y = next_y;
+    cell.x = next_x;
     moveTo(next_y, next_x, direction);
     return true;
-  } else if (matrix.value[next_y][next_x].num == instance.num) {
-    matrix.value[next_y][next_x].num += instance.num;
-    matrix.value[current_y][current_x] = null;
+  } else if (next_cell.num === cell.num) {
+    next_cell.merged = true;
+    cell.y = next_y;
+    cell.x = next_x;
+    cell.merged = true;
+
+    cellList.value.push({
+      y: next_y,
+      x: next_x,
+      num: cell.num + next_cell.num,
+      merged: false,
+      created_by_merge: true,
+    });
+
     return true;
   }
   return false;
 };
 
 const randomAppear = () => {
-  const list = emptyCellList.value;
-  if (list.length == 0) {
-    return false;
+  const positionList = emptyPositionList.value;
+  if (positionList.length == 0) {
+    return;
   }
-  const random = Math.floor(Math.random() * list.length);
-  const cell = list[random];
+  const random = Math.floor(Math.random() * positionList.length);
+  const position = positionList[random];
 
-  const instance = {
+  cellList.value.push({
+    y: position.y,
+    x: position.x,
     num: 2,
-  };
-  matrix.value[cell.y][cell.x] = instance;
-  return true;
+    merged: false,
+    created_by_merge: false,
+  });
+  return;
 };
 
 const derectionAction = (direction) => {
+  deleteMergedCells();
   let move_success = false;
+  const clClone = cellList.value.concat();
   switch (direction) {
     case DERECTION_TO_TOP:
-      for (let x = 0; x < MATRIX_SIZE; x++) {
-        //必ず上から走査
-        for (let y = 0; y < MATRIX_SIZE; y++) {
-          if (!!matrix.value[y][x]) {
-            move_success = moveTo(y, x, direction) || move_success;
-          }
-        }
-      }
+      // yが小さい順（必ず上から走査するため）
+      clClone.sort((a, b) => {
+        return a.y - b.y;
+      });
       break;
     case DERECTION_TO_BUTTOM:
-      for (let x = 0; x < MATRIX_SIZE; x++) {
-        //必ず下から走査
-        for (let y = 0; y < MATRIX_SIZE; y++) {
-          const reverse_y = MATRIX_INDEX_LAST - y;
-          if (!!matrix.value[reverse_y][x]) {
-            move_success = moveTo(reverse_y, x, direction) || move_success;
-          }
-        }
-      }
+      // yが大きい順（必ず下から走査するため）
+      clClone.sort((a, b) => {
+        return b.y - a.y;
+      });
       break;
     case DERECTION_TO_LEFT:
-      for (let y = 0; y < MATRIX_SIZE; y++) {
-        for (let x = 0; x < MATRIX_SIZE; x++) {
-          //必ず左から走査
-          if (!!matrix.value[y][x]) {
-            move_success = moveTo(y, x, direction) || move_success;
-          }
-        }
-      }
+      // xが小さい順（必ず上から走査するため）
+      clClone.sort((a, b) => {
+        return a.x - b.x;
+      });
       break;
     case DERECTION_TO_RIGHT:
-      for (let y = 0; y < MATRIX_SIZE; y++) {
-        for (let x = 0; x < MATRIX_SIZE; x++) {
-          //必ず右から走査
-          const reverse_x = MATRIX_INDEX_LAST - x;
-          if (!!matrix.value[y][reverse_x]) {
-            move_success = moveTo(y, reverse_x, direction) || move_success;
-          }
-        }
-      }
+      // xが大きい順（必ず右から走査するため）
+      clClone.sort((a, b) => {
+        return b.x - a.x;
+      });
       break;
     default:
       console.log("知らない入力だ…");
   }
 
+  clClone.forEach((cell) => {
+    if (!cell.merged) {
+      move_success = moveTo(cell.y, cell.x, direction) || move_success;
+    }
+  });
+
   if (!move_success) {
-    //一つでも動かせるものがなかった場合
-    alert("その方向へは動かせません");
+    console.warn("その方向へは動かせません");
     return;
   }
 
-  const appear_success = randomAppear();
-  if (!appear_success) {
-    alert("これ以上生成できませんでした。");
+  randomAppear();
+
+  if (checkGameClear()) {
+    alert("おめでとうございます。クリアです。");
+  } else if (checkGameFaild()) {
+    alert("これ以上できません。詰みです");
   }
 };
 
@@ -199,14 +267,14 @@ window.addEventListener("keydown", keyAction);
   <main>
     <div class="container flex flex-wrap mx-auto mb-8">
       <div class="w-full p-6 md:w-1/2">
-        <matrix-flame :matrix-state="matrix" />
+        <matrix-flame :cell-list="cellList" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
-          <!-- <div v-for="row in matrix" :key="row" class="w-full">
-            <span v-for="item in row" :key="item" class="w-1/4"
-              >{{ item?.num ?? "□" }},</span
+          <div v-for="row in matrix" :key="row" class="w-full">
+            <span v-for="(num, x) in row" :key="x" class="w-1/4"
+              >{{ num ?? "□" }},</span
             >
-          </div> -->
+          </div>
         </div>
       </div>
       <div class="w-full p-6 md:w-1/2"></div>

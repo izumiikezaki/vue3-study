@@ -2,13 +2,11 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  num: Number,
-  xPercent: Number,
-  yPercent: Number,
+  cell: Object,
 });
 
 const colorClass = computed(() => {
-  switch (props.num) {
+  switch (props.cell.num) {
     case 2:
       return "bg-slate-50";
     case 4:
@@ -37,7 +35,7 @@ const colorClass = computed(() => {
 });
 
 const textColorClass = computed(() => {
-  if (props.num > 8) {
+  if (props.cell.num > 8) {
     return "text-slate-100";
   }
   return "text-slate-900";
@@ -45,21 +43,61 @@ const textColorClass = computed(() => {
 
 const styleForPosition = computed(() => {
   return {
-    top: props.yPercent + "%",
-    left: props.xPercent + "%",
+    top: `${(props.cell.y / 4) * 100}%`,
+    left: `${(props.cell.x / 4) * 100}%`,
   };
+});
+
+const classOfAnimation = computed(() => {
+  if (props.cell.created_by_marge) {
+    return ["move-animation", "merge-animation"];
+  }
+  return ["move-animation", "appear-animation"];
 });
 </script>
 
 <template>
-  <div class="absolute aspect-square w-1/4 p-1" :style="styleForPosition">
+  <div
+    class="absolute aspect-square w-1/4 p-1"
+    :style="styleForPosition"
+    :class="classOfAnimation"
+  >
     <div
       class="w-full rounded aspect-square grid place-items-center"
       :class="colorClass"
     >
       <span :class="textColorClass">
-        {{ num }}
+        {{ cell.num }}
       </span>
     </div>
   </div>
 </template>
+
+<style scoped>
+.move-animation {
+  transition: all 0.3s ease;
+}
+
+.appear-animation {
+  animation: appear 0.5s ease;
+}
+
+.merge-animation {
+  animation: merge 0.5s ease 0.1s;
+}
+
+@keyframes appear {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes merge {
+  50% {
+    transform: scale(1.2);
+  }
+}
+</style>
