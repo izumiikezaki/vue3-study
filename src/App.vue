@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
-import MatrixCell from "./components/MatrixCell.vue";
+import MyNavbar from "./components/MyNavbar.vue";
 import MatrixFlame from "./components/MatrixFlame.vue";
 
 const MATRIX_SIZE = 4;
@@ -250,14 +250,7 @@ window.addEventListener("keydown", keyAction);
 
 <template>
   <header>
-    <h1>
-      2048ゲーム<a
-        href="https://github.com/izumiikezaki/vue3-study"
-        target="_blank"
-      >
-        <i class="fa-brands fa-github-alt" />
-      </a>
-    </h1>
+    <my-navbar />
   </header>
 
   <main>
