@@ -268,7 +268,7 @@ window.addEventListener("keydown", keyAction);
   </header>
 
   <main>
-    <div class="container flex flex-wrap mx-auto mb-8 justify-center">
+    <div class="container flex flex-wrap mx-auto md:mt-8 justify-center">
       <div class="w-full p-6 md:w-1/2 xl:w-1/3">
         <div class="mb-2 flex flex-row-reverse justify-between">
           <button class="btn btn-sm normal-case" @click="initGame">
