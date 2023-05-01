@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import ScoreBord from "./components/ScoreBord.vue";
 import MyNavbar from "./components/MyNavbar.vue";
 import MatrixFlame from "./components/MatrixFlame.vue";
 
@@ -13,6 +14,7 @@ const DERECTION_TO_LEFT = 4;
 const DERECTION_TO_RIGHT = 6;
 
 const cellList = ref([]);
+const score = ref(0);
 
 const cellListWithoutMerged = computed(() => {
   return cellList.value.filter((cell) => {
@@ -138,13 +140,17 @@ const moveTo = (current_y, current_x, direction) => {
     cell.x = next_x;
     cell.merged = true;
 
+    const mergedNum = cell.num + next_cell.num;
+
     cellList.value.push({
       y: next_y,
       x: next_x,
-      num: cell.num + next_cell.num,
+      num: mergedNum,
       merged: false,
       created_by_merge: true,
     });
+
+    score.value += mergedNum;
 
     return true;
   }
@@ -241,7 +247,7 @@ const keyAction = (e) => {
 
 const initGame = () => {
   cellList.value = [];
-
+  score.value = 0;
   randomAppear();
 };
 
@@ -264,10 +270,11 @@ window.addEventListener("keydown", keyAction);
   <main>
     <div class="container flex flex-wrap mx-auto mb-8 justify-center">
       <div class="w-full p-6 md:w-1/2 xl:w-1/3">
-        <div class="mb-2 flex flex-row-reverse">
+        <div class="mb-2 flex flex-row-reverse justify-between">
           <button class="btn btn-sm normal-case" @click="initGame">
             New Game
           </button>
+          <span class="md:hidden">score: {{ score }}</span>
         </div>
         <matrix-flame :cell-list="cellList" />
         <div class="w-full p-2">
@@ -279,7 +286,17 @@ window.addEventListener("keydown", keyAction);
           </div> -->
         </div>
       </div>
-      <div class="w-full p-6 invisible md:visible md:w-1/2 xl:w-1/3"></div>
+      <div class="w-full p-6 hidden md:block md:w-1/2 xl:w-1/3">
+        <div class="hero">
+          <div class="hero-content text-center">
+            <div class="max-w-md">
+              <p class="py-6">
+                <score-bord :score="score" />
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </template>
