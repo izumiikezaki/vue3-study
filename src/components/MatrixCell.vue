@@ -24,11 +24,11 @@ const colorClass = computed(() => {
     case 256:
       return "bg-slate-800";
     case 512:
-      return "bg-slate-900";
+      return "bg-slate-900 shadow-lg shadow-slate-900/50";
     case 1024:
-      return "bg-slate-900";
+      return "bg-slate-900 shadow-lg shadow-slate-900/50";
     case 2048:
-      return "bg-slate-900";
+      return "bg-slate-900 shadow-lg shadow-slate-900/50";
     default:
       return "bg-lime-700";
   }
