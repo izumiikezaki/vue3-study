@@ -159,10 +159,12 @@ const randomAppear = () => {
   const random = Math.floor(Math.random() * positionList.length);
   const position = positionList[random];
 
+  const num = Math.random() > 0.9 ? 4 : 2;
+
   cellList.value.push({
     y: position.y,
     x: position.x,
-    num: 2,
+    num: num,
     merged: false,
     created_by_merge: false,
   });
