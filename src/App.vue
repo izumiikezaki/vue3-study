@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
-import MatrixCell from "./components/MatrixCell.vue";
+import MyNavbar from "./components/MyNavbar.vue";
 import MatrixFlame from "./components/MatrixFlame.vue";
 
 const MATRIX_SIZE = 4;
@@ -14,6 +14,12 @@ const DERECTION_TO_RIGHT = 6;
 
 const cellList = ref([]);
 
+const cellListWithoutMerged = computed(() => {
+  return cellList.value.filter((cell) => {
+    return !cell.merged;
+  });
+});
+
 const matrix = computed(() => {
   const list = [
     [null, null, null, null],
@@ -22,10 +28,8 @@ const matrix = computed(() => {
     [null, null, null, null],
   ];
 
-  cellList.value.forEach((cell) => {
-    if (!cell.merged) {
-      list[cell.y][cell.x] = cell.num;
-    }
+  cellListWithoutMerged.value.forEach((cell) => {
+    list[cell.y][cell.x] = cell.num;
   });
 
   return list;
@@ -33,13 +37,6 @@ const matrix = computed(() => {
 
 const emptyPositionList = computed(() => {
   let list = [];
-  // for (let x = 0; x < MATRIX_SIZE; x++) {
-  //   for (let y = 0; y < MATRIX_SIZE; y++) {
-  //     if (!!findCell(y, x)) {
-  //       list.push({ x: x, y: y });
-  //     }
-  //   }
-  // }
   matrix.value.forEach((raw, y) => {
     raw.forEach((item, x) => {
       if (!item) {
@@ -50,17 +47,15 @@ const emptyPositionList = computed(() => {
   return list;
 });
 
-//セルを探すmergedは含めない
+//セルを探す(mergedは含めない)
 const findCell = (y, x) => {
-  return cellList.value.find(
-    (cell) => cell.x === x && cell.y === y && cell.merged === false
+  return cellListWithoutMerged.value.find(
+    (cell) => cell.x === x && cell.y === y
   );
 };
 
 const deleteMergedCells = () => {
-  cellList.value = cellList.value.filter((cell) => {
-    return !cell.merged;
-  });
+  cellList.value = cellListWithoutMerged.value.concat();
 };
 
 const outOfMatrix = (y, x) => {
@@ -73,8 +68,9 @@ const outOfMatrix = (y, x) => {
 };
 
 const checkGameClear = () => {
-  return !!cellList.value.find((cell) => cell.num === 2048);
+  return !!cellList.value.find((cell) => cell.num >= 2048);
 };
+
 const checkGameFaild = () => {
   if (emptyPositionList.value.length > 0) {
     return false;
@@ -94,8 +90,7 @@ const checkGameFaild = () => {
       }
     }
   }
-  console.log(emptyPositionList.value.length);
-  console.log(matrix.value);
+
   return true;
 };
 
@@ -176,7 +171,7 @@ const randomAppear = () => {
 
 const derectionAction = (direction) => {
   deleteMergedCells();
-  let move_success = false;
+
   const clClone = cellList.value.concat();
   switch (direction) {
     case DERECTION_TO_TOP:
@@ -207,6 +202,7 @@ const derectionAction = (direction) => {
       console.log("知らない入力だ…");
   }
 
+  let move_success = false;
   clClone.forEach((cell) => {
     if (!cell.merged) {
       move_success = moveTo(cell.y, cell.x, direction) || move_success;
@@ -238,7 +234,13 @@ const keyAction = (e) => {
     derectionAction(DERECTION_TO_RIGHT);
   }
   //キーコードの表示
-  console.log(e.keyCode);
+  // console.log(e.keyCode);
+};
+
+const initGame = () => {
+  cellList.value = [];
+
+  randomAppear();
 };
 
 /**
@@ -247,37 +249,35 @@ const keyAction = (e) => {
  *
  **/
 
-randomAppear();
+initGame();
 
 window.addEventListener("keydown", keyAction);
 </script>
 
 <template>
   <header>
-    <h1>
-      2048ゲーム<a
-        href="https://github.com/izumiikezaki/vue3-study"
-        target="_blank"
-      >
-        <i class="fa-brands fa-github-alt" />
-      </a>
-    </h1>
+    <my-navbar />
   </header>
 
   <main>
-    <div class="container flex flex-wrap mx-auto mb-8">
-      <div class="w-full p-6 md:w-1/2">
+    <div class="container flex flex-wrap mx-auto mb-8 justify-center">
+      <div class="w-full p-6 md:w-1/2 xl:w-1/3">
+        <div class="mb-2 flex flex-row-reverse">
+          <button class="btn btn-sm normal-case" @click="initGame">
+            New Game
+          </button>
+        </div>
         <matrix-flame :cell-list="cellList" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
-          <div v-for="row in matrix" :key="row" class="w-full">
+          <!-- <div v-for="row in matrix" :key="row" class="w-full">
             <span v-for="(num, x) in row" :key="x" class="w-1/4"
               >{{ num ?? "□" }},</span
             >
-          </div>
+          </div> -->
         </div>
       </div>
-      <div class="w-full p-6 md:w-1/2"></div>
+      <div class="w-full p-6 invisible md:visible md:w-1/2 xl:w-1/3"></div>
     </div>
   </main>
 </template>
