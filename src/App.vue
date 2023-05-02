@@ -9,10 +9,10 @@ const MATRIX_SIZE = 4;
 const MATRIX_INDEX_FIRST = 0;
 const MATRIX_INDEX_LAST = MATRIX_SIZE - 1;
 
-const DERECTION_TO_TOP = 8;
-const DERECTION_TO_BUTTOM = 2;
-const DERECTION_TO_LEFT = 4;
-const DERECTION_TO_RIGHT = 6;
+const DERECTION_TO_UP = "up";
+const DERECTION_TO_DOWN = "down";
+const DERECTION_TO_LEFT = "left";
+const DERECTION_TO_RIGHT = "right";
 
 const cellList = ref([]);
 const score = ref(0);
@@ -105,11 +105,11 @@ const moveTo = (current_y, current_x, direction) => {
   let next_y = null;
   let next_x = null;
   switch (direction) {
-    case DERECTION_TO_TOP:
+    case DERECTION_TO_UP:
       next_y = current_y - 1;
       next_x = current_x;
       break;
-    case DERECTION_TO_BUTTOM:
+    case DERECTION_TO_DOWN:
       next_y = current_y + 1;
       next_x = current_x;
       break;
@@ -183,13 +183,13 @@ const derectionAction = (direction) => {
 
   const clClone = cellList.value.concat();
   switch (direction) {
-    case DERECTION_TO_TOP:
+    case DERECTION_TO_UP:
       // yが小さい順（必ず上から走査するため）
       clClone.sort((a, b) => {
         return a.y - b.y;
       });
       break;
-    case DERECTION_TO_BUTTOM:
+    case DERECTION_TO_DOWN:
       // yが大きい順（必ず下から走査するため）
       clClone.sort((a, b) => {
         return b.y - a.y;
@@ -234,9 +234,9 @@ const derectionAction = (direction) => {
 
 const keyAction = (e) => {
   if (e.keyCode == 38) {
-    derectionAction(DERECTION_TO_TOP);
+    derectionAction(DERECTION_TO_UP);
   } else if (e.keyCode == 40) {
-    derectionAction(DERECTION_TO_BUTTOM);
+    derectionAction(DERECTION_TO_DOWN);
   } else if (e.keyCode == 37) {
     derectionAction(DERECTION_TO_LEFT);
   } else if (e.keyCode == 39) {
@@ -268,7 +268,7 @@ onMounted(() => {
   target.swipe(
     "up",
     () => {
-      derectionAction(DERECTION_TO_TOP);
+      derectionAction(DERECTION_TO_UP);
     },
     10
   );
@@ -276,7 +276,7 @@ onMounted(() => {
   target.swipe(
     "down",
     () => {
-      derectionAction(DERECTION_TO_BUTTOM);
+      derectionAction(DERECTION_TO_DOWN);
     },
     10
   );
