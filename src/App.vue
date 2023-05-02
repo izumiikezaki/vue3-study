@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { setupSwipe } from "./libs/swipe.js";
 import ScoreBord from "./components/ScoreBord.vue";
 import MyNavbar from "./components/MyNavbar.vue";
 import MatrixFlame from "./components/MatrixFlame.vue";
@@ -8,10 +9,10 @@ const MATRIX_SIZE = 4;
 const MATRIX_INDEX_FIRST = 0;
 const MATRIX_INDEX_LAST = MATRIX_SIZE - 1;
 
-const DERECTION_TO_TOP = 8;
-const DERECTION_TO_BUTTOM = 2;
-const DERECTION_TO_LEFT = 4;
-const DERECTION_TO_RIGHT = 6;
+const DERECTION_TO_UP = "up";
+const DERECTION_TO_DOWN = "down";
+const DERECTION_TO_LEFT = "left";
+const DERECTION_TO_RIGHT = "right";
 
 const cellList = ref([]);
 const score = ref(0);
@@ -104,11 +105,11 @@ const moveTo = (current_y, current_x, direction) => {
   let next_y = null;
   let next_x = null;
   switch (direction) {
-    case DERECTION_TO_TOP:
+    case DERECTION_TO_UP:
       next_y = current_y - 1;
       next_x = current_x;
       break;
-    case DERECTION_TO_BUTTOM:
+    case DERECTION_TO_DOWN:
       next_y = current_y + 1;
       next_x = current_x;
       break;
@@ -178,17 +179,24 @@ const randomAppear = () => {
 };
 
 const derectionAction = (direction) => {
+  if (checkGameClear()) {
+    return;
+  }
+  // if (checkGameFaild()) {
+  //   return;
+  // }
+
   deleteMergedCells();
 
   const clClone = cellList.value.concat();
   switch (direction) {
-    case DERECTION_TO_TOP:
+    case DERECTION_TO_UP:
       // yが小さい順（必ず上から走査するため）
       clClone.sort((a, b) => {
         return a.y - b.y;
       });
       break;
-    case DERECTION_TO_BUTTOM:
+    case DERECTION_TO_DOWN:
       // yが大きい順（必ず下から走査するため）
       clClone.sort((a, b) => {
         return b.y - a.y;
@@ -233,9 +241,9 @@ const derectionAction = (direction) => {
 
 const keyAction = (e) => {
   if (e.keyCode == 38) {
-    derectionAction(DERECTION_TO_TOP);
+    derectionAction(DERECTION_TO_UP);
   } else if (e.keyCode == 40) {
-    derectionAction(DERECTION_TO_BUTTOM);
+    derectionAction(DERECTION_TO_DOWN);
   } else if (e.keyCode == 37) {
     derectionAction(DERECTION_TO_LEFT);
   } else if (e.keyCode == 39) {
@@ -252,14 +260,48 @@ const initGame = () => {
 };
 
 /**
- *
  * created
- *
  **/
-
 initGame();
 
 window.addEventListener("keydown", keyAction);
+
+/**
+ * mouted
+ **/
+onMounted(() => {
+  setupSwipe();
+  const target = document.getElementById("test");
+  target.swipe(
+    "up",
+    () => {
+      derectionAction(DERECTION_TO_UP);
+    },
+    10
+  );
+
+  target.swipe(
+    "down",
+    () => {
+      derectionAction(DERECTION_TO_DOWN);
+    },
+    10
+  );
+  target.swipe(
+    "left",
+    () => {
+      derectionAction(DERECTION_TO_LEFT);
+    },
+    10
+  );
+  target.swipe(
+    "right",
+    () => {
+      derectionAction(DERECTION_TO_RIGHT);
+    },
+    10
+  );
+});
 </script>
 
 <template>
@@ -279,7 +321,7 @@ window.addEventListener("keydown", keyAction);
           </button>
           <span class="md:hidden">score: {{ score }}</span>
         </div>
-        <matrix-flame :cell-list="cellList" />
+        <matrix-flame :cell-list="cellList" id="test" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
           <!-- <div v-for="row in matrix" :key="row" class="w-full">

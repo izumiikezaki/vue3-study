@@ -49,7 +49,7 @@ const styleForPosition = computed(() => {
 });
 
 const classOfAnimation = computed(() => {
-  if (props.cell.created_by_marge) {
+  if (props.cell.created_by_merge) {
     return ["move-animation", "merge-animation"];
   }
   return ["move-animation", "appear-animation"];
@@ -75,15 +75,17 @@ const classOfAnimation = computed(() => {
 
 <style scoped>
 .move-animation {
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
 }
 
 .appear-animation {
-  animation: appear 0.5s ease;
+  animation: appear 0.3s ease 0.2s;
+  animation-fill-mode: backwards;
 }
 
 .merge-animation {
-  animation: merge 0.5s ease 0.1s;
+  animation: merge 0.3s ease 0.1s;
+  animation-fill-mode: backwards;
 }
 
 @keyframes appear {
@@ -96,8 +98,12 @@ const classOfAnimation = computed(() => {
 }
 
 @keyframes merge {
+  0% {
+    opacity: 0;
+  }
   50% {
-    transform: scale(1.2);
+    opacity: 1;
+    transform: scale(1.3);
   }
 }
 </style>
