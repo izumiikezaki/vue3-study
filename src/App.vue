@@ -179,6 +179,13 @@ const randomAppear = () => {
 };
 
 const derectionAction = (direction) => {
+  if (checkGameClear()) {
+    return;
+  }
+  // if (checkGameFaild()) {
+  //   return;
+  // }
+
   deleteMergedCells();
 
   const clClone = cellList.value.concat();
