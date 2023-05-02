@@ -33,16 +33,24 @@ const prop = {
           "touchstart",
           function (event) {
             self.removeEventListener("touchstart", null, false); //2回目以降触れただけで発火しないよう、イベントリスナを解除
-            var position = event.changedTouches[0].pageX;
+            var startX = event.changedTouches[0].pageX;
+            var startY = event.changedTouches[0].pageY;
             self.addEventListener("touchend", function (event) {
-              self.removeEventListener("touchend", null, false);
-              if (
-                event.changedTouches[0].pageX <
-                position - screen.width / sens
-              ) {
+              const endX = event.changedTouches[0].pageX;
+              const endY = event.changedTouches[0].pageY;
+              const direction = getDirection(
+                endX,
+                endY,
+                startX,
+                startY,
+                screen.height,
+                screen.width,
+                sens
+              );
+              if (direction === "left") {
                 callback(self);
               }
-              position = 0;
+              startX = 0;
             });
           },
           false
@@ -53,16 +61,25 @@ const prop = {
           "touchstart",
           function (event) {
             self.removeEventListener("touchstart", null, false);
-            var position = event.changedTouches[0].pageX;
+            var startX = event.changedTouches[0].pageX;
+            var startY = event.changedTouches[0].pageY;
             self.addEventListener("touchend", function (event) {
               self.removeEventListener("touchend", null, false);
-              if (
-                event.changedTouches[0].pageX >
-                position + screen.width / sens
-              ) {
+              const endX = event.changedTouches[0].pageX;
+              const endY = event.changedTouches[0].pageY;
+              const direction = getDirection(
+                endX,
+                endY,
+                startX,
+                startY,
+                screen.height,
+                screen.width,
+                sens
+              );
+              if (direction === "right") {
                 callback(self);
               }
-              position = screen.width;
+              startX = screen.width;
             });
           },
           false
@@ -73,16 +90,25 @@ const prop = {
           "touchstart",
           function (event) {
             self.removeEventListener("touchstart", null, false);
-            var position = event.changedTouches[0].pageY;
+            var startX = event.changedTouches[0].pageX;
+            var startY = event.changedTouches[0].pageY;
             self.addEventListener("touchend", function (event) {
               self.removeEventListener("touchend", null, false);
-              if (
-                event.changedTouches[0].pageY <
-                position - screen.height / sens
-              ) {
+              const endX = event.changedTouches[0].pageX;
+              const endY = event.changedTouches[0].pageY;
+              const direction = getDirection(
+                endX,
+                endY,
+                startX,
+                startY,
+                screen.height,
+                screen.width,
+                sens
+              );
+              if (direction === "up") {
                 callback(self);
               }
-              position = 0;
+              startY = 0;
             });
           },
           false
@@ -93,16 +119,25 @@ const prop = {
           "touchstart",
           function (event) {
             self.removeEventListener("touchstart", null, false);
-            var position = event.changedTouches[0].pageY;
+            var startX = event.changedTouches[0].pageX;
+            var startY = event.changedTouches[0].pageY;
             self.addEventListener("touchend", function (event) {
               self.removeEventListener("touchend", null, false);
-              if (
-                event.changedTouches[0].pageY >
-                position + screen.height / sens
-              ) {
+              const endX = event.changedTouches[0].pageX;
+              const endY = event.changedTouches[0].pageY;
+              const direction = getDirection(
+                endX,
+                endY,
+                startX,
+                startY,
+                screen.height,
+                screen.width,
+                sens
+              );
+              if (direction === "down") {
                 callback(self);
               }
-              position = screen.height;
+              startY = screen.height;
             });
           },
           false
@@ -110,4 +145,21 @@ const prop = {
         break;
     }
   },
+};
+
+const getDirection = (endX, endY, startX, startY, height, width, sens) => {
+  const values = [
+    { name: "left", value: startX - width / sens - endX },
+    { name: "right", value: endX - (startX + width / sens) },
+    { name: "up", value: startY - height / sens - endY },
+    { name: "down", value: endY - (startY + height / sens) },
+  ];
+  const max = values.reduce((a, b) => (a.value > b.value ? a : b));
+  console.log(max.name);
+  if (max.value < 0) {
+    //必ずどこかは正の数なのでここはならないはず
+    return "";
+  }
+
+  return max.name;
 };
