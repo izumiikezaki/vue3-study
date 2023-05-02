@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { setupSwipe } from "./libs/swipe.js";
 import ScoreBord from "./components/ScoreBord.vue";
 import MyNavbar from "./components/MyNavbar.vue";
 import MatrixFlame from "./components/MatrixFlame.vue";
@@ -252,14 +253,48 @@ const initGame = () => {
 };
 
 /**
- *
  * created
- *
  **/
-
 initGame();
 
 window.addEventListener("keydown", keyAction);
+
+/**
+ * mouted
+ **/
+onMounted(() => {
+  setupSwipe();
+  const target = document.getElementById("test");
+  target.swipe(
+    "up",
+    () => {
+      derectionAction(DERECTION_TO_TOP);
+    },
+    10
+  );
+
+  target.swipe(
+    "down",
+    () => {
+      derectionAction(DERECTION_TO_BUTTOM);
+    },
+    10
+  );
+  target.swipe(
+    "left",
+    () => {
+      derectionAction(DERECTION_TO_LEFT);
+    },
+    10
+  );
+  target.swipe(
+    "right",
+    () => {
+      derectionAction(DERECTION_TO_RIGHT);
+    },
+    10
+  );
+});
 </script>
 
 <template>
@@ -279,7 +314,7 @@ window.addEventListener("keydown", keyAction);
           </button>
           <span class="md:hidden">score: {{ score }}</span>
         </div>
-        <matrix-flame :cell-list="cellList" />
+        <matrix-flame :cell-list="cellList" id="test" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
           <!-- <div v-for="row in matrix" :key="row" class="w-full">
