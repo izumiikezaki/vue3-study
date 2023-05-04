@@ -280,7 +280,7 @@ window.addEventListener("keydown", keyAction);
  **/
 onMounted(() => {
   setupSwipe();
-  const target = document.getElementById("test");
+  const target = document.getElementById("swipe-target");
   target.swipe(
     "up",
     () => {
@@ -330,7 +330,7 @@ onMounted(() => {
           </button>
           <span class="md:hidden">score: {{ score }}</span>
         </div>
-        <matrix-flame :cell-list="cellList" id="test" />
+        <matrix-flame :cell-list="cellList" id="swipe-target" />
         <div class="w-full p-2">
           <!-- デバッグ用 -->
           <!-- <div v-for="row in matrix" :key="row" class="w-full">
