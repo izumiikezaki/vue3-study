@@ -61,6 +61,12 @@ const deleteMergedCells = () => {
   cellList.value = cellListWithoutMerged.value.concat();
 };
 
+const resetFreshFrag = () => {
+  cellList.value.map((cell) => {
+    return (cell.is_fresh = false);
+  });
+};
+
 const outOfMatrix = (y, x) => {
   return (
     y < MATRIX_INDEX_FIRST ||
@@ -135,7 +141,7 @@ const moveTo = (current_y, current_x, direction) => {
     cell.x = next_x;
     moveTo(next_y, next_x, direction);
     return true;
-  } else if (next_cell.num === cell.num) {
+  } else if (next_cell.num === cell.num && !next_cell.is_fresh) {
     next_cell.hidden = true;
     cell.y = next_y;
     cell.x = next_x;
@@ -149,6 +155,7 @@ const moveTo = (current_y, current_x, direction) => {
       num: mergedNum,
       hidden: false,
       created_by_merge: true,
+      is_fresh: true,
     });
 
     score.value += mergedNum;
@@ -174,6 +181,7 @@ const randomAppear = () => {
     num: num,
     hidden: false,
     created_by_merge: false,
+    is_fresh: true,
   });
   return;
 };
@@ -187,6 +195,7 @@ const derectionAction = (direction) => {
   // }
 
   deleteMergedCells();
+  resetFreshFrag();
 
   const clClone = cellList.value.concat();
   switch (direction) {
