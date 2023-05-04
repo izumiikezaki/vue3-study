@@ -19,7 +19,7 @@ const score = ref(0);
 
 const cellListWithoutMerged = computed(() => {
   return cellList.value.filter((cell) => {
-    return !cell.merged;
+    return !cell.hidden;
   });
 });
 
@@ -50,7 +50,7 @@ const emptyPositionList = computed(() => {
   return list;
 });
 
-//セルを探す(mergedは含めない)
+//セルを探す(hiddenは含めない)
 const findCell = (y, x) => {
   return cellListWithoutMerged.value.find(
     (cell) => cell.x === x && cell.y === y
@@ -136,10 +136,10 @@ const moveTo = (current_y, current_x, direction) => {
     moveTo(next_y, next_x, direction);
     return true;
   } else if (next_cell.num === cell.num) {
-    next_cell.merged = true;
+    next_cell.hidden = true;
     cell.y = next_y;
     cell.x = next_x;
-    cell.merged = true;
+    cell.hidden = true;
 
     const mergedNum = cell.num + next_cell.num;
 
@@ -147,7 +147,7 @@ const moveTo = (current_y, current_x, direction) => {
       y: next_y,
       x: next_x,
       num: mergedNum,
-      merged: false,
+      hidden: false,
       created_by_merge: true,
     });
 
@@ -172,7 +172,7 @@ const randomAppear = () => {
     y: position.y,
     x: position.x,
     num: num,
-    merged: false,
+    hidden: false,
     created_by_merge: false,
   });
   return;
@@ -220,7 +220,7 @@ const derectionAction = (direction) => {
 
   let move_success = false;
   clClone.forEach((cell) => {
-    if (!cell.merged) {
+    if (!cell.hidden) {
       move_success = moveTo(cell.y, cell.x, direction) || move_success;
     }
   });
